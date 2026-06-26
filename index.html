@@ -153,6 +153,27 @@ body.big{font-size:18px;} body.huge{font-size:20px;}
 .rev-item{background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin-bottom:7px;display:flex;align-items:center;gap:10px;cursor:pointer;}
 .rev-item .ri-task{flex:1;font-size:14px;} .rev-item .ri-days{font-size:12px;color:var(--sub);white-space:nowrap;}
 .empty{color:var(--sub);font-size:13px;padding:10px 4px;}
+
+
+.cloud-row{display:flex;gap:8px;margin-bottom:8px;}
+.cloud-row input{flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit;}
+.cloud-row button{padding:10px 16px;border-radius:10px;border:none;background:#2563eb;color:#fff;font-size:13px;font-weight:700;}
+.cloud-status{font-size:12px;line-height:1.6;margin-bottom:8px;min-height:18px;}
+.cloud-status.ok{color:#15803d;}
+.cloud-status.err{color:#b91c1c;}
+.cloud-status.sync{color:#2563eb;}
+.sync-box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:18px;}
+.sync-box h4{margin:0 0 6px;font-size:14px;}
+.sync-help{font-size:12px;color:var(--sub);line-height:1.7;margin:0 0 12px;}
+.sync-btns{display:flex;gap:10px;margin-bottom:10px;}
+.sync-btns button{flex:1;font-size:13px;font-weight:700;padding:10px;border-radius:10px;border:1px solid var(--line);background:#fff;color:#2563eb;}
+.sync-btns button:active{background:#eff6ff;}
+#sync-area{width:100%;min-height:90px;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:11px;font-family:monospace;resize:vertical;word-break:break-all;}
+.sync-btns2{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.sync-btns2 button{font-size:12px;padding:8px 12px;border-radius:10px;border:none;font-weight:700;}
+#sync-copy{background:#2563eb;color:#fff;}
+#sync-import-run{background:#16a34a;color:#fff;}
+#sync-cancel{background:#f1f5f9;color:#475569;}
 .savetoast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;font-size:13px;padding:8px 16px;border-radius:20px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:50;}
 .savetoast.show{opacity:.95;}
 .help{font-size:12px;color:var(--sub);background:#f1f5f9;border-radius:8px;padding:10px 12px;margin:8px 0 12px;line-height:1.7;}
@@ -919,8 +940,35 @@ body.big{font-size:18px;} body.huge{font-size:20px;}
   </div>
   <div class="readlog-box" data-no="46" hidden></div><div class="memo-box" data-no="46" hidden><textarea data-no="46" placeholder="このテーマのメモ・自分の本論ネタなど"></textarea></div>
 </article></div>
-    <div style="text-align:center;margin-top:10px;">
-      <button id="reset" style="font-size:12px;color:#b91c1c;background:none;border:1px solid #fecaca;border-radius:16px;padding:8px 18px;">保存データを全て消去</button>
+    <div class="sync-box">
+      <h4>☁️ クラウド同期（複数端末で自動共有）</h4>
+      <p class="sync-help">合言葉（同期コード）を決めて入力すると、記録が自動でクラウドに保存され、同じ合言葉を入れた他の端末と自動で揃います。推測されにくい長めの言葉にしてください（例：自分の名前＋数字など）。</p>
+      <div class="cloud-row">
+        <input type="text" id="cloud-code" placeholder="同期コード（合言葉）">
+        <button id="cloud-connect">接続</button>
+      </div>
+      <div id="cloud-status" class="cloud-status"></div>
+      <div class="sync-btns2" style="margin-bottom:18px;">
+        <button id="cloud-pull" hidden>☁️↓ 今すぐ読込</button>
+        <button id="cloud-push" hidden>☁️↑ 今すぐ保存</button>
+        <button id="cloud-disconnect" hidden>接続を解除</button>
+      </div>
+      <hr style="border:none;border-top:1px solid var(--line);margin:4px 0 16px;">
+      <h4>📦 記録のバックアップ・デバイス間コピー（手動）</h4>
+      <p class="sync-help">読んだ回数・日付・お気に入り・メモ・マイネタを、別の端末に移せます。「書き出し」でコードを作り、別端末で「読み込み」に貼り付けてください。</p>
+      <div class="sync-btns">
+        <button id="sync-export">📤 書き出し</button>
+        <button id="sync-import-open">📥 読み込み</button>
+      </div>
+      <textarea id="sync-area" placeholder="ここに書き出しコードが表示されます／読み込むコードを貼り付けます" readonly></textarea>
+      <div class="sync-btns2">
+        <button id="sync-copy" hidden>コードをコピー</button>
+        <button id="sync-import-run" hidden>このコードを読み込む</button>
+        <button id="sync-cancel" hidden>キャンセル</button>
+      </div>
+      <div style="text-align:center;margin-top:14px;">
+        <button id="reset" style="font-size:12px;color:#b91c1c;background:none;border:1px solid #fecaca;border-radius:16px;padding:8px 18px;">保存データを全て消去</button>
+      </div>
     </div>
   </section>
   <section class="view" id="v-quiz">
@@ -1200,6 +1248,132 @@ function runSearch(){const q=document.getElementById('search-input').value.trim(
 document.getElementById('search-input').addEventListener('input',runSearch);
 document.querySelectorAll('.tagfilter').forEach(b=>b.addEventListener('click',()=>{if(activeTag===b.dataset.tag){activeTag=null;b.classList.remove('active');}else{document.querySelectorAll('.tagfilter').forEach(x=>x.classList.remove('active'));activeTag=b.dataset.tag;b.classList.add('active');}runSearch();}));
 runSearch();
+
+/* ===== エクスポート/インポート ===== */
+const SYNC_KEYS=['done','fav','memo','size','doneDate','voiceURI','readLog','netaNote','rate'];
+function doExport(){
+  const data={};SYNC_KEYS.forEach(k=>{if(store[k]!==undefined)data[k]=store[k];});
+  const code='TKBR1:'+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  const ta=document.getElementById('sync-area');
+  ta.readOnly=true;ta.value=code;ta.scrollTop=0;
+  document.getElementById('sync-copy').hidden=false;
+  document.getElementById('sync-import-run').hidden=true;
+  document.getElementById('sync-cancel').hidden=false;
+}
+function openImport(){
+  const ta=document.getElementById('sync-area');
+  ta.readOnly=false;ta.value='';ta.placeholder='ここに、別の端末で書き出したコードを貼り付けてください';ta.focus();
+  document.getElementById('sync-copy').hidden=true;
+  document.getElementById('sync-import-run').hidden=false;
+  document.getElementById('sync-cancel').hidden=false;
+}
+function runImport(){
+  const ta=document.getElementById('sync-area');
+  let code=ta.value.trim();
+  if(!code){toast('コードを貼り付けてください');return;}
+  if(!code.startsWith('TKBR1:')){toast('コードの形式が違います');return;}
+  let data;
+  try{data=JSON.parse(decodeURIComponent(escape(atob(code.slice(6)))));}
+  catch(e){toast('読み込みに失敗しました');return;}
+  if(!confirm('この端末の記録を、読み込むコードの内容に置き換えます。よろしいですか？（マイネタやメモも上書きされます）'))return;
+  SYNC_KEYS.forEach(k=>{if(data[k]!==undefined)store[k]=data[k];});
+  localStorage.setItem(KEY,JSON.stringify(store));
+  toast('読み込みました。画面を更新します');
+  setTimeout(()=>location.reload(),700);
+}
+function syncCancel(){
+  const ta=document.getElementById('sync-area');
+  ta.readOnly=true;ta.value='';ta.placeholder='ここに書き出しコードが表示されます／読み込むコードを貼り付けます';
+  document.getElementById('sync-copy').hidden=true;
+  document.getElementById('sync-import-run').hidden=true;
+  document.getElementById('sync-cancel').hidden=true;
+}
+document.getElementById('sync-export').addEventListener('click',doExport);
+document.getElementById('sync-import-open').addEventListener('click',openImport);
+document.getElementById('sync-import-run').addEventListener('click',runImport);
+document.getElementById('sync-cancel').addEventListener('click',syncCancel);
+document.getElementById('sync-copy').addEventListener('click',()=>{
+  const ta=document.getElementById('sync-area');
+  if(navigator.clipboard){navigator.clipboard.writeText(ta.value).then(()=>toast('コピーしました'),()=>{ta.select();toast('長押しでコピーしてください');});}
+  else{ta.select();toast('長押しでコピーしてください');}
+});
+
+/* ===== クラウド同期（Supabase） ===== */
+const SUPA_URL='https://yfxhvbpjxdyvjfzcmeme.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmeGh2YnBqeGR5dmpmemNtZW1lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MTM5MDEsImV4cCI6MjA5Nzk4OTkwMX0.8j7hpLr4sojNzE4r7qStu2VikgjvDyUDIxHCELrV-Uw';
+let cloudCode=store.cloudCode||'',cloudBusy=false,pushTimer=null;
+function setCloudStatus(msg,cls){
+  const e=document.getElementById('cloud-status');e.textContent=msg;e.className='cloud-status '+(cls||'');
+}
+function cloudUIConnected(on){
+  document.getElementById('cloud-pull').hidden=!on;
+  document.getElementById('cloud-push').hidden=!on;
+  document.getElementById('cloud-disconnect').hidden=!on;
+  document.getElementById('cloud-connect').textContent=on?'再接続':'接続';
+  if(on)document.getElementById('cloud-code').value=cloudCode;
+}
+const SUPA_HEADERS={'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'};
+async function cloudPull(silent){
+  if(!cloudCode)return;
+  try{
+    setCloudStatus('クラウドから読込中…','sync');
+    const url=SUPA_URL+'/rest/v1/ronbun_sync?sync_code=eq.'+encodeURIComponent(cloudCode)+'&select=data';
+    const res=await fetch(url,{headers:SUPA_HEADERS});
+    if(!res.ok)throw new Error('status '+res.status);
+    const rows=await res.json();
+    if(rows&&rows.length&&rows[0].data){
+      SYNC_KEYS.forEach(k=>{if(rows[0].data[k]!==undefined)store[k]=rows[0].data[k];});
+      localStorage.setItem(KEY,JSON.stringify(store));
+      setCloudStatus('読込完了。画面を更新します','ok');
+      if(!silent){setTimeout(()=>location.reload(),600);}else{return true;}
+    }else{
+      setCloudStatus('クラウドにまだ記録がありません。「今すぐ保存」で初回保存できます','ok');
+    }
+  }catch(e){setCloudStatus('読込に失敗しました（通信状況を確認してください）','err');}
+}
+async function cloudPush(){
+  if(!cloudCode)return;
+  if(cloudBusy)return;cloudBusy=true;
+  try{
+    const payload={};SYNC_KEYS.forEach(k=>{if(store[k]!==undefined)payload[k]=store[k];});
+    const url=SUPA_URL+'/rest/v1/ronbun_sync';
+    const res=await fetch(url,{method:'POST',headers:Object.assign({'Prefer':'resolution=merge-duplicates'},SUPA_HEADERS),
+      body:JSON.stringify({sync_code:cloudCode,data:payload,updated_at:new Date().toISOString()})});
+    if(!res.ok)throw new Error('status '+res.status);
+    setCloudStatus('クラウドに保存しました（'+new Date().toLocaleTimeString()+'）','ok');
+  }catch(e){setCloudStatus('保存に失敗しました（通信状況を確認してください）','err');}
+  cloudBusy=false;
+}
+// 記録変更時に自動保存（saveをフック）
+const _origSave=save;
+save=function(){
+  _origSave();
+  if(cloudCode){clearTimeout(pushTimer);pushTimer=setTimeout(cloudPush,1500);}
+};
+document.getElementById('cloud-connect').addEventListener('click',async()=>{
+  const v=document.getElementById('cloud-code').value.trim();
+  if(v.length<4){setCloudStatus('同期コードは4文字以上にしてください','err');return;}
+  cloudCode=v;store.cloudCode=v;localStorage.setItem(KEY,JSON.stringify(store));
+  cloudUIConnected(true);
+  setCloudStatus('接続しました（コード: '+v+'）','ok');
+  // クラウドに既存データがあるか確認
+  const got=await cloudPull(true);
+  if(got){ setCloudStatus('クラウドの記録を読み込みました。画面を更新します','ok'); setTimeout(()=>location.reload(),700); }
+  else { await cloudPush(); }  // クラウドが空ならこの端末の記録を初回保存
+});
+document.getElementById('cloud-pull').addEventListener('click',()=>cloudPull(false));
+document.getElementById('cloud-push').addEventListener('click',cloudPush);
+document.getElementById('cloud-disconnect').addEventListener('click',()=>{
+  if(!confirm('クラウド同期を解除します。この端末の記録は残ります。よろしいですか？'))return;
+  cloudCode='';delete store.cloudCode;localStorage.setItem(KEY,JSON.stringify(store));
+  cloudUIConnected(false);setCloudStatus('同期を解除しました','');
+  document.getElementById('cloud-code').value='';
+});
+// 起動時：接続済みなら自動読込
+if(cloudCode){
+  cloudUIConnected(true);
+  window.addEventListener('load',()=>{setTimeout(()=>cloudPull(true).then(ok=>{if(ok)setCloudStatus('クラウドと同期済み（コード: '+cloudCode+'）','ok');}),400);});
+}
 document.getElementById('reset').addEventListener('click',()=>{if(confirm('読んだ記録・お気に入り・メモを全て消去します。よろしいですか？')){localStorage.removeItem(KEY);location.reload();}});
 
 /* ===== 音声読み上げ ===== */
