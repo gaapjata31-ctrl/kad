@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>論文ドリル｜特別区課題式論文</title>
+<style>
+  :root{
+    --ink:#1b2440; --bg:#f4f6fd; --card:#ffffff;
+    --primary:#3b5bdb; --primary-soft:#e7ecfd;
+    --ok:#0ca678; --ok-soft:#e6f8f2;
+    --ng:#e8590c; --ng-soft:#fdeee4;
+    --rule:#e2e6f2; --faint:#7a83a3;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{
+    font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.75;
+    padding-bottom:92px;
+  }
+  header{
+    background:linear-gradient(135deg,#3b5bdb 0%,#5f3dc4 100%);
+    color:#fff; padding:16px 16px 12px;
+    position:sticky; top:0; z-index:10;
+    box-shadow:0 2px 10px rgba(59,91,219,.25);
+  }
+  header h1{
+    font-family:"Hiragino Mincho ProN","Yu Mincho",serif;
+    font-size:1.15rem; letter-spacing:.12em; font-weight:600;
+  }
+  header .sub{font-size:.68rem; opacity:.85; letter-spacing:.05em; margin-top:1px;}
+  .modes{display:flex; gap:0; margin-top:11px; border:1.5px solid rgba(255,255,255,.7); border-radius:10px; overflow:hidden;}
+  .modes button{
+    flex:1; border:none; background:transparent; color:#fff;
+    font-family:inherit; font-size:.85rem; font-weight:600; letter-spacing:.1em;
+    padding:8px 0; cursor:pointer;
+  }
+  .modes button.on{background:#fff; color:var(--primary);}
+  .progress{margin-top:11px;}
+  .progress .row{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-size:.75rem; margin-bottom:4px;
+  }
+  .progress .pct{font-size:1.02rem; font-weight:700; font-variant-numeric:tabular-nums;}
+  .bar{height:9px; background:rgba(255,255,255,.25); border-radius:999px; overflow:hidden;}
+  .bar i{
+    display:block; height:100%; width:0%;
+    background:linear-gradient(90deg,#63e6be,#38d9a9);
+    border-radius:999px; transition:width .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .stats{
+    display:flex; gap:14px; margin-top:8px; font-size:.74rem;
+    font-variant-numeric:tabular-nums; opacity:.95;
+  }
+  .stats b{font-weight:700;}
+  .saved{font-size:.64rem; opacity:.7; margin-top:3px; min-height:1em; letter-spacing:.05em;}
+  .chips{
+    display:flex; gap:8px; overflow-x:auto; padding:10px 16px;
+    background:var(--bg); position:sticky; top:var(--hh,170px); z-index:9;
+    -webkit-overflow-scrolling:touch; scrollbar-width:none;
+    border-bottom:1px solid var(--rule);
+  }
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{
+    flex:0 0 auto; border:1.5px solid var(--cc,var(--primary));
+    background:var(--card); color:var(--cc,var(--primary));
+    font-size:.78rem; padding:5px 13px; border-radius:999px;
+    letter-spacing:.03em; cursor:pointer; font-family:inherit; font-weight:600;
+  }
+  .chip.on{background:var(--cc,var(--primary)); color:#fff;}
+  main{padding:14px 16px 20px; max-width:720px; margin:0 auto;}
+  .card{
+    background:var(--card); border-radius:14px; margin-bottom:14px;
+    border-left:5px solid var(--cc,var(--primary));
+    box-shadow:0 1px 4px rgba(27,36,64,.08); overflow:hidden;
+  }
+  .card.st-ok{background:linear-gradient(0deg,var(--ok-soft),var(--card) 55%);}
+  .card.st-ng{background:linear-gradient(0deg,var(--ng-soft),var(--card) 55%);}
+  .card .head{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:8px 14px 0; font-size:.7rem; letter-spacing:.06em;
+  }
+  .card .head .cat{color:var(--cc,var(--primary)); font-weight:700;}
+  .card .head .no{color:var(--faint); font-variant-numeric:tabular-nums;}
+  .card .head .res{font-size:.95rem; font-weight:700; margin-left:6px;}
+  .res.ok{color:var(--ok);} .res.ng{color:var(--ng);}
+  .card .body{
+    padding:10px 14px 12px;
+    font-family:"Hiragino Mincho ProN","Yu Mincho",serif;
+    font-size:1.02rem; line-height:2.05;
+  }
+  .orig{color:var(--faint); font-size:.92em;}
+  .blank{
+    display:inline-block; white-space:nowrap; vertical-align:baseline;
+    border-bottom:2px solid var(--primary); padding:0 2px; margin:0 1px;
+  }
+  .blank .sq{
+    display:inline-block; width:1.05em; height:1.15em; margin:0 .5px;
+    border:1px solid var(--rule); background:var(--primary-soft);
+    border-radius:3px; vertical-align:-.18em;
+  }
+  .blank .ch{display:inline-block; width:1.05em; text-align:center; color:var(--primary); font-weight:600;}
+  .blank.open{
+    background:var(--primary-soft); border-bottom-color:var(--primary);
+    color:var(--primary); font-weight:600; border-radius:4px;
+  }
+  .blank.open .sq{display:none;}
+  .card .foot{display:flex; border-top:1px solid var(--rule);}
+  .card .foot button{
+    flex:1; border:none; background:transparent; font-family:inherit;
+    font-size:.85rem; padding:11px 0; letter-spacing:.08em; color:var(--ink);
+    cursor:pointer; font-weight:600;
+  }
+  .card .foot button + button{border-left:1px solid var(--rule);}
+  .card .foot button:disabled{color:var(--rule);}
+  .card .foot button:active{background:var(--bg);}
+  .card .foot .j-ok{color:var(--ok);}
+  .card .foot .j-ng{color:var(--ng);}
+  .judge{display:none;} .card.revealed .judge{display:flex;}
+  .card.revealed .ops{display:none;}
+  .ops{display:flex; flex:1;}
+  .empty{text-align:center; color:var(--faint); font-size:.85rem; padding:48px 0;}
+  .guide{
+    background:var(--primary-soft); border-radius:14px; margin-bottom:14px;
+    border-left:5px solid var(--primary); overflow:hidden;
+  }
+  .guide summary{
+    list-style:none; cursor:pointer; padding:11px 14px;
+    font-size:.85rem; font-weight:700; color:var(--primary); letter-spacing:.05em;
+  }
+  .guide summary::-webkit-details-marker{display:none;}
+  .guide summary::before{content:"▶ ";}
+  .guide[open] summary::before{content:"▼ ";}
+  .guide .gbody{
+    padding:0 14px 13px; font-size:.82rem; line-height:1.9; color:var(--ink);
+  }
+  .guide .gbody h4{
+    font-size:.8rem; margin:8px 0 3px; color:var(--primary); letter-spacing:.05em;
+  }
+  .guide .gbody dl{margin:0;}
+  .guide .gbody dt{font-weight:700; margin-top:5px;}
+  .guide .gbody dd{margin:0; color:#3a4364;}
+  .guide .gbody .rule{margin-top:3px;}
+  .guide .gbody .rule b{color:var(--primary);}
+  footer{
+    position:fixed; bottom:0; left:0; right:0;
+    background:var(--card); border-top:1px solid var(--rule);
+    display:flex; gap:8px; padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+    z-index:10; box-shadow:0 -2px 10px rgba(27,36,64,.06);
+  }
+  footer button{
+    flex:1; font-family:inherit; font-size:.83rem; letter-spacing:.1em;
+    padding:11px 0; border:1.5px solid var(--primary); border-radius:10px;
+    background:var(--card); color:var(--primary); cursor:pointer; font-weight:600;
+  }
+  footer button.on{background:var(--primary); color:#fff;}
+  footer button.danger{border-color:var(--ng); color:var(--ng);}
+  footer button:active{opacity:.7;}
+  .note{font-size:.7rem; color:var(--faint); text-align:center; padding:4px 16px 12px;}
+</style>
+</head>
+<body>
+
+<header id="hd">
+  <h1>論文ドリル</h1>
+  <div class="sub">特別区課題式論文｜模範答案・レジュメ全収録分より抽出</div>
+  <div class="modes" id="modes">
+    <button data-m="phrase" class="on">言い回し</button>
+    <button data-m="particle">てにをは</button>
+    <button data-m="de">で言い換え</button>
+  </div>
+  <div class="progress">
+    <div class="row">
+      <span class="pct"><span id="pPct">0</span>%</span>
+      <span class="msg" id="pMsg">さあ始めよう</span>
+    </div>
+    <div class="bar"><i id="pBar"></i></div>
+  </div>
+  <div class="stats">
+    <span>全 <b id="stTotal">0</b> 問</span>
+    <span>○ <b id="stOk">0</b></span>
+    <span>× <b id="stNg">0</b></span>
+    <span>未 <b id="stRest">0</b></span>
+  </div>
+  <div class="saved" id="savedMsg"></div>
+</header>
+
+<div class="chips" id="chips"></div>
+
+<main id="list"></main>
+<div class="note" id="envNote"></div>
+
+<footer>
+  <button id="btnShuffle">シャッフル</button>
+  <button id="btnReview">×のみ</button>
+  <button id="btnReset" class="danger">リセット</button>
+</footer>
+
+<script>
+// [モード, カテゴリ, 文] 【】内が空欄。ID順は変更しない(保存データ互換のため末尾追記方式)
+const DATA=[
+// ===== 言い回し(既存 id:0-79) =====
+["phrase","序論・背景","近年、少子高齢化の進行や国際化の進展、デジタル社会の到来など社会環境は【大きく変化】しており、地域課題や区民ニーズは【複雑化・多様化】している。"],
+["phrase","序論・背景","昨今では物価高騰などが区民生活に大きな影響を及ぼすなど、常に新たな課題や行政ニーズが【生じている現状にある】。"],
+["phrase","序論・背景","地域経済の活性化は、雇用機会の確保や消費活動の拡大をもたらし、住民生活の安定や向上にも【直結する】。"],
+["phrase","序論・背景","少子高齢化対策や公共施設の老朽化対策など大きな財政負担を伴う行政課題が【山積】しており、特別区の財政状況は今後も【厳しさを増していく】ことが想定される。"],
+["phrase","序論・背景","スポーツは、年齢・性別・体力・国籍などを問わず誰もが楽しむことができ、人々の心身の健康保持に大きな効果を【もたらすものである】。"],
+["phrase","序論・背景","環境問題は、現代を生きる我々だけではなく、【将来世代】にもつながる課題である。"],
+["phrase","序論・制約と転換","一方で、特別区の財政状況は依然として厳しい状況が続いており、限られた人員と予算の中で効率的かつ効果的な区政運営を展開していくことが【強く求められている】。"],
+["phrase","序論・制約と転換","限られた人員と予算の中、行政だけで全ての課題に対応することは【困難であるだろう】。"],
+["phrase","序論・制約と転換","このような状況において、画一化された手段や従来の方法だけでは区民満足度の高い区政運営を進めていくのは【困難である】。"],
+["phrase","序論・制約と転換","活力にあふれた魅力ある地域を形成していくためにも、地域経済の活性化は【喫緊の課題】である。"],
+["phrase","序論・制約と転換","多様な住民ニーズに応えていくためには、民間企業が有する技術や経験、ノウハウ等を効果的に活用していくことが【不可欠といえる】。"],
+["phrase","序論・制約と転換","このため特別区においては、区民一人ひとりが安心や豊かさを感じられる地域を形成していくためにも、社会環境の変化に即応した区政運営を【展開していかなければならない】。"],
+["phrase","序論・結び","【以上を踏まえ】、地域におけるスポーツの振興に向けて必要な取組を【論じていきたい】。"],
+["phrase","序論・結び","【このことを踏まえ】、区民との信頼関係の構築に向けて必要な取組を論じていきたい。"],
+["phrase","序論・結び","そのために必要な取組を【以下に論じていく】。"],
+["phrase","序論・結び","以上を踏まえ、透明性の向上と区民参画の推進に向けて、必要な取組を【それぞれ】論じていきたい。"],
+["phrase","序論・結び","まず、私が考える民間活力の活用の【あり方】について【述べていきたい】。"],
+["phrase","本論・柱の立て方","【第一に】、広聴活動の【拡充】である。"],
+["phrase","本論・柱の立て方","第二に、デジタル化の【推進】である。"],
+["phrase","本論・柱の立て方","第三に、職員のコンプライアンス（法令遵守）の【徹底】である。"],
+["phrase","本論・柱の立て方","第一に、区民が気軽にスポーツを楽しめる【環境の整備】である。"],
+["phrase","本論・柱の立て方","第一に、透明性の向上【のために】、積極的な情報発信【が必要である】。"],
+["phrase","本論・主張の語尾","業務の最適化を図る仕組みを構築していくことが【重要である】。"],
+["phrase","本論・主張の語尾","適切な役割分担の下、相互の連携・協力を進めていくことが【必要である】。"],
+["phrase","本論・主張の語尾","スタートアップの創出や支援に取り組んでいくことが【肝要である】。"],
+["phrase","本論・主張の語尾","住民との合意に基づき行政運営を進めていくことが【肝要となる】。"],
+["phrase","本論・主張の語尾","定期的な職員研修の実施に努め、規範意識の向上に【努めていかなければならない】。"],
+["phrase","本論・主張の語尾","定型的な事務作業や窓口業務に対して、民間委託等の適否を【検討していくべきだと考える】。"],
+["phrase","本論・主張の語尾","誰もが日常生活の中でスポーツに親しめるように取り組んでいくことが【重要となってくる】。"],
+["phrase","本論・主張の語尾","情報の漏洩リスクや不正アクセスに対する【万全の対策】に努めなければならない。"],
+["phrase","本論・理由と現状","各種事務事業の中には、経費に対して効果が不十分なものや、工夫や改善の余地があるものも【あるだろう】。"],
+["phrase","本論・理由と現状","相談や問合せを行える分野が限定されていたり、多言語に対応していないケースも【散見される】。"],
+["phrase","本論・理由と現状","共働き世帯の増加に伴い、開庁時間に夫婦どちらも区役所を訪れられないようなケースも【想定される】。"],
+["phrase","本論・理由と現状","昨今でも、個人情報の漏洩や不適切な会計処理などの公務員の不祥事が【後を絶たない】。"],
+["phrase","本論・理由と現状","現在も住民説明会等の広聴の機会が設けられているが、若年世代などの参画が少ないことが【課題となっている】。"],
+["phrase","本論・理由と現状","パブリックコメントに対しても、【敷居の高さ】を感じてしまう住民もいるだろう。"],
+["phrase","本論・理由と現状","一度失った信頼を回復するためには、【多大な時間や労力】が必要となる。"],
+["phrase","本論・具体策導入","【例えば】、地域の公園や広場などに積極的に健康遊具の設置を【進めていきたい】。"],
+["phrase","本論・具体策導入","【そこで今後は】、区民が気軽に区政に参画できる手法として、オンラインでの広聴活動を【拡充していきたい】。"],
+["phrase","本論・具体策導入","【このため今後は】、大学のスポーツ施設を地域資源の一つと捉え、利用協定の締結に向けた検討も【進めていくべきである】。"],
+["phrase","本論・具体策導入","【具体的には】、起業を目指す若者などを支援・育成するプログラム等を実施することで、新規事業の創出を【支えていきたい】。"],
+["phrase","本論・具体策導入","そこで、アスリートとの交流やふれあいの機会を設けていくことが【効果的だと考える】。"],
+["phrase","本論・具体策導入","そこで今後は、無作為抽出型のモニター制度を【導入してはどうだろうか】。"],
+["phrase","本論・具体策導入","【さらに】、ＩＴツールの導入への助成や低利での融資にも【取り組むべきである】。"],
+["phrase","本論・効果","手続のオンライン化を進めることによって、来庁が困難な区民でも簡便に行政手続を行うことが【可能となる】。"],
+["phrase","本論・効果","ＡＩチャットボットを活用することで、24時間365日対応できる体制を【構築することができる】。"],
+["phrase","本論・効果","中小企業の振興が図られることが、地域経済の活性化に【つながっていく】。"],
+["phrase","本論・効果","スポーツに対する興味や関心が地域全体で高まっていくことが【期待できる】。"],
+["phrase","本論・効果","誰もが気軽に参加できる取組を展開していくことが、省エネルギー社会の形成に向けた【機運を醸成】させていくと考える。"],
+["phrase","本論・効果","双方向のコミュニケーションという利点を活かした対応を進めていくことで、区民の満足度や信頼度は更に【向上していくだろう】。"],
+["phrase","本論・効果","【このように】、地域住民の多様化という社会環境の変化に即応していくためにも、ユニバーサルデザインの推進が【重要となってくる】。"],
+["phrase","本論・効果","住民相互の連帯意識や共助の意識が【醸成】され、活力あふれる地域づくりを進めていくことができる。"],
+["phrase","留意・譲歩","以上のように先端技術の活用について論じてきたが、その活用に当たっては【留意すべき点】がある。それは、情報保全の問題である。"],
+["phrase","留意・譲歩","【もちろん】、行政による直営を望む声にも【配意】することは大切ではあるが、限られた予算と人員の中にあっては、民間活力の活用を継続的に検討していくことが重要である。"],
+["phrase","留意・譲歩","もちろん、未確定の情報によって区民に混乱を与えないよう【配慮は必要である】が、可能な限り政策形成の各段階での情報公開を進めていくことが、区政への信頼向上につながると考える。"],
+["phrase","留意・譲歩","民間活力の活用によって、サービス品質や住民満足度が低下することが【あってはならない】。"],
+["phrase","留意・譲歩","反対意見を持つ住民や、個人情報保護等に対して不安を持つ住民も【いるだろう】。"],
+["phrase","結論・決意","特別区は、社会環境の変化を的確に捉え、これに即応しながら区民の豊かで快適な生活を【実現していかなければならない】。"],
+["phrase","結論・決意","良好で豊かな地域環境を保全し、これを将来に引き継いでいくことは、今を生きる我々の【責務】である。"],
+["phrase","結論・決意","特別区は区民からの【負託】に基づき行政活動を遂行しており、その根底には「区民からの信頼」がある。"],
+["phrase","結論・決意","私自身も区政の担い手の一人として常に社会環境の変化に【鋭敏】となり、全力で職務に【邁進していく決意である】。"],
+["phrase","結論・決意","私は、公務員が【全体の奉仕者】であることを念頭に置き、高い規範意識を持って職務に専念していく決意である。"],
+["phrase","結論・決意","私は、このことを【念頭に置き】、区民との間にゆるぎない信頼関係を構築していく決意である。"],
+["phrase","結論・決意","【日進月歩】で技術革新が進む中、特別区では積極的に先端技術を活用しながら、効率的で効果的な行政運営を【追求していかなくてはならない】。"],
+["phrase","結論・決意","私は、この難題に【果敢に挑戦】し、区職員としての責務を果たしていく決意である。"],
+["phrase","結論・決意","特別区は、より効果的な情報発信の実現に向けて【鋭意】取り組んでいかなければならない。"],
+["phrase","結論・決意","計画策定後も、最新の知見や区民からの意見等を踏まえ、計画内容を【不断に】見直していくことが求められる。"],
+["phrase","用語定義","循環型社会とは、天然資源の消費を【抑制】し、環境への負荷を可能な限り【低減】した社会のことである。"],
+["phrase","用語定義","協働とは、地域課題の解決に向けて住民と行政が【連携・協力】を進めていくことである。"],
+["phrase","用語定義","コンプライアンスとは、法令を遵守するとともに、社会通念上の常識や倫理観に照らして【正しい行動を取る】ことである。"],
+["phrase","用語定義","デジタルデバイドとは、デジタル技術を活用できる人とできない人の間に生じる【格差】のことである。"],
+["phrase","用語定義","シビックプライドとは、自身が暮らす地域への【愛着や誇り】のことである。"],
+["phrase","用語定義","スタートアップとは、革新的な技術やアイデアにより【急成長】を目指す企業のことである。"],
+["phrase","用語定義","ユニバーサルスポーツとは、年齢、性別、障害の有無などに関わらず【誰もが楽しめる】スポーツのことである。"],
+["phrase","用語定義","説明責任とは、一定の責任を負った者は自らの責任に関して【十分な説明】を果たさなくてはならないという考え方のことである。"],
+["phrase","用語定義","ＳＤＧｓとは、2030年までに【持続可能】でよりよい世界を目指す【国際目標】のことである。"],
+["phrase","用語定義","地域コミュニティとは、町会・自治会、商店会、ＰＴＡなど、一定の地域を基盤とした住民同士の【つながりや活動】のことである。"],
+["phrase","用語定義","モバイルファーストとは、スマートフォンやタブレットからも不便なく【行政手続】を行えるようにする方針のことである。"],
+["phrase","用語定義","無作為抽出とは、参加する区民を【ランダムに選定】するものである。"],
+// ===== てにをは(id:80-) =====
+["particle","てにをは・基本","区民一人ひとり【が】安心や豊かさ【を】感じられる地域【を】形成していく。"],
+["particle","てにをは・基本","行政だけ【で】全ての課題【に】対応すること【は】困難であるだろう。"],
+["particle","てにをは・基本","多様な区民ニーズ【に】丁寧に耳【を】傾け、区職員として【の】責務を果たしていく決意である。"],
+["particle","てにをは・基本","社会環境の変化を迅速【に】捉え、的確な施策形成【によって】即応していくためには、区民の声【を】十分に把握していくことが大切である。"],
+["particle","てにをは・基本","幅広い世代【に】向けて情報【を】発信していくこと【が】必要である。"],
+["particle","てにをは・基本","山積する地域課題【へ】の対応が求められ、職員一人ひとりの業務負担【も】増加の一途であろう。"],
+["particle","てにをは・基本","限られた人員【と】予算の中【で】、効率的かつ効果的な区政運営【を】展開していく。"],
+["particle","てにをは・基本","区民の意見や要望【を】十分に把握し、施策【に】反映していくこと【が】大切である。"],
+["particle","てにをは・基本","民間企業【が】有する技術や経験、ノウハウ等【を】効果的に活用していく。"],
+["particle","てにをは・基本","住民の理解や納得【を】得られるよう【に】努めなければならない。"],
+["particle","てにをは・基本","若者や外国人等の多様な区民【の】参画【も】進めていく必要【が】ある。"],
+["particle","てにをは・基本","身近な地域課題【について】、高校生や大学生【と】の意見交換の場【を】設けていきたい。"],
+["particle","てにをは・複合助詞","特別区【においては】、効率的で効果的な区政運営を追求していかなければならない。"],
+["particle","てにをは・複合助詞","区民からの問い合わせ【に対して】、幅広い分野でＡＩチャットボットを活用する。"],
+["particle","てにをは・複合助詞","共働き世帯の増加【に伴い】、区役所への来庁が困難なケースも想定される。"],
+["particle","てにをは・複合助詞","地域経済の活性化【に向けて】必要な取組を論じていきたい。"],
+["particle","てにをは・複合助詞","住民との意見交換や対話【を通じて】、住民が抱える不安の解消に取り組む。"],
+["particle","てにをは・複合助詞","特別区は区民からの負託【に基づき】行政活動を遂行している。"],
+["particle","てにをは・複合助詞","以上【を踏まえ】、必要な取組を論じていきたい。"],
+["particle","てにをは・複合助詞","行政は民間主体との適切な役割分担【の下】、相互の連携・協力を進めていく。"],
+["particle","てにをは・複合助詞","業務委託や指定管理者制度の導入など【にあたっては】、不安を持つ住民もいるだろう。"],
+["particle","てにをは・複合助詞","デジタル技術の進展【により】、多くの区民がスマートフォンを所持している。"],
+["particle","てにをは・複合助詞","障害の有無【にかかわらず】スポーツに親しめる環境を整備する。"],
+["particle","てにをは・複合助詞","公共施設の廃止【をめぐり】、一部住民からの反発が発生した。"],
+["particle","てにをは・複合助詞","限られた予算と人員の中【にあっては】、民間活力の活用を継続的に検討していくことが重要である。"],
+["particle","てにをは・複合助詞","インバウンド需要を取りこぼしていることが課題となっている現状【に対し】、キャッシュレス決済の導入支援を進める。"],
+["particle","てにをは・助詞+動詞","業務の効率化【を図り】ながら、区民に対するサービスの向上【を進める】ことができる。"],
+["particle","てにをは・助詞+動詞","定期的な職員研修の実施に努め、規範意識の向上【に努めて】いかなければならない。"],
+["particle","てにをは・助詞+動詞","情報の漏洩リスクや不正アクセスに対する万全の対策【を講じる】必要がある。"],
+["particle","てにをは・助詞+動詞","省エネルギー社会の形成に向けた機運【を醸成】させていく。"],
+["particle","てにをは・助詞+動詞","区政に対する区民の理解や協力【を得る】ことが重要となってくる。"],
+["particle","てにをは・助詞+動詞","多様な住民の声【に耳を傾け】、双方の合意形成【を図って】いく。"],
+["particle","てにをは・助詞+動詞","区民の意見や要望を可能な限り施策【に反映】していくことが重要である。"],
+["particle","てにをは・助詞+動詞","求職者とのマッチング機会【を創出】していくことも必要である。"],
+["particle","てにをは・助詞+動詞","費用対効果【を】慎重【に】検討しながら、民間活力の活用【を図って】いきたい。"],
+["particle","てにをは・助詞+動詞","民間委託等の適否【を検証】していくことが大切である。"],
+["particle","てにをは・助詞+動詞","オンライン化の拡充によって、サービスの拡充【が図られる】ことになる。"],
+["particle","てにをは・助詞+動詞","地域住民の不安解消や理解促進【につながって】いくだろう。"],
+["particle","てにをは・助詞+動詞","徹底したモニタリングを行うことで適切な指導・監督【にも努め】、サービス品質の向上【を図って】いきたい。"],
+["particle","てにをは・助詞+動詞","訓練の中で生じた課題を行動計画等【に反映】することもできるため、継続的【に取り組む】べきである。"],
+// ===== で言い換え(id:120-) △=よくある書き方 ○=格上げ後 =====
+["de","で→において","△ 区役所の窓口で手続を行う。\n○ 区役所の窓口【において】手続を行う。"],
+["de","で→において","△ 小中学校の教育現場でアスリートとの交流の機会を設ける。\n○ 小中学校の教育現場【において】、アスリートとの交流やふれあいの機会を設けていく。"],
+["de","で→において","△ 日々の業務でＡＩ等の先端技術を活用する。\n○ 日々の業務【において】、ＡＩ等の先端技術を積極的に活用していく。"],
+["de","で→において","△ 今後の区政運営で重要となる。\n○ 今後の区政運営【において】重要となってくる。"],
+["de","で→において","△ 区内のイベントで交流の機会を設ける。\n○ 区内のイベント等【において】、交流の機会を設けていく。"],
+["de","で→において","△ 計画の策定段階で住民の意見を募る。\n○ 計画の策定段階【から】住民の意見や要望を募り、可能な限り反映していく。"],
+["de","で→により・に伴い","△ ＡＩの導入で内部業務を効率化する。\n○ ＡＩの導入【により】、内部業務の効率化を図っていく。"],
+["de","で→により・に伴い","△ 少子高齢化で行政課題が山積している。\n○ 少子高齢化の進行【に伴い】、行政課題が山積している。"],
+["de","で→により・に伴い","△ 民間委託で大幅な経費削減に成功した。\n○ 民間委託【によって】、大幅な経費削減に成功した。"],
+["de","で→により・に伴い","△ 手続のオンライン化で利便性が向上する。\n○ 手続のオンライン化【によって】、区民の利便性を大きく向上させることができる。"],
+["de","で→により・に伴い","△ デジタル技術の進展で多くの区民がスマートフォンを持っている。\n○ デジタル技術の進展【に伴い】、多くの区民がスマートフォンを所持している。"],
+["de","で→により・に伴い","△ 不祥事で区役所全体への信頼が失墜する。\n○ 不祥事の発生【により】、区役所全体への信頼が失墜する。"],
+["de","で→により・に伴い","△ 物価高騰で区民生活に大きな影響が出ている。\n○ 物価高騰【により】、区民生活に大きな影響が及んでいる。"],
+["de","で→を活用し・を通じて","△ ＳＮＳで住民の意見を把握する。\n○ ＳＮＳ【を活用して】、住民からの要望や意見等の迅速な把握に努める。"],
+["de","で→を活用し・を通じて","△ ＡＩチャットボットで24時間対応する。\n○ ＡＩチャットボット【を活用し】、24時間365日対応できる体制を構築する。"],
+["de","で→を活用し・を通じて","△ スポーツで仲間との交流が促進される。\n○ スポーツ【を通じて】、仲間との交流の促進が図られる。"],
+["de","で→を活用し・を通じて","△ 定期的な研修で規範意識を高める。\n○ 定期的な職員研修【を通じて】、規範意識の向上を図る。"],
+["de","で→を活用し・を通じて","△ 動画やイラストで分かりやすく説明する。\n○ 動画やイラスト【を用いて】、分かりやすく説明する。"],
+["de","で→を活用し・を通じて","△ 多様な媒体で丁寧に情報提供を行う。\n○ 多様な媒体【を活用しながら】、情報提供を丁寧に行う。"],
+["de","で→その他の格上げ","△ 限られた予算と人員の中で、民間活力の活用を検討する。\n○ 限られた予算と人員の中【にあっては】、民間活力の活用を継続的に検討していくことが重要である。"],
+["de","で→その他の格上げ","△ 複数の職員でチェックを行う。\n○ 複数の職員【による】ダブルチェックを導入し、万全を期していく。"],
+["de","で→その他の格上げ","△ 地域全体で取り組む。\n○ 地域住民【が一体となって】取り組む。"],
+["de","で→その他の格上げ","△ 仕事の都合で来庁が困難な区民もいる。\n○ 仕事の都合【などにより】来庁が困難な区民もいる。"],
+["de","で→その他の格上げ","△ 厳しい財政状況の中で区民の期待に応えていく。\n○ 厳しい財政状況【下にあっても】、区民の期待や信頼に応えていく。"],
+["de","で→その他の格上げ","△ 区とＮＰＯで連携して課題に取り組む。\n○ 区とＮＰＯ【が連携・協力し】、地域課題の解決に取り組む。"],
+["de","接続の言い換え","△ 財政状況は厳しい。なので、効率化が必要だ。\n○ 財政状況は厳しい。【このため】、行政運営の効率化を不断に進めていかなければならない。"],
+["de","接続の言い換え","△ 若年世代の参画が少ない。それで、ＳＮＳを活用する。\n○ 若年世代の参画が少ないことが課題となっている。【そこで】、幅広い世代が利用しているＳＮＳを活用していく。"],
+["de","接続の言い換え","△ 以上のような効果がある。そんなわけで、推進すべきだ。\n○ 以上のような効果がある。【したがって】、積極的に推進していくべきである。"]
+];
+
+const MODES=[["phrase","言い回し"],["particle","てにをは"],["de","で言い換え"]];
+const PALETTE=["#3b5bdb","#1098ad","#0ca678","#74b816","#f59f00","#e8590c","#e64980","#be4bdb","#7048e8","#4263eb","#12b886","#f76707","#d6336c"];
+const ALLCATS=[...new Set(DATA.map(d=>d[1]))];
+const catColor=c=>PALETTE[ALLCATS.indexOf(c)%PALETTE.length];
+const catsOf=m=>[...new Set(DATA.filter(d=>d[0]===m).map(d=>d[1]))];
+
+let items=DATA.map((d,i)=>({id:i,mode:d[0],cat:d[1],raw:d[2],state:"none",hinted:false,revealed:false}));
+let curMode="phrase", curCat="all", reviewOnly=false;
+
+/* ===== 進捗セーブ層 =====
+   1) window.storage (Claude アーティファクト環境)
+   2) localStorage   (GitHub Pages 等の通常ブラウザ)
+   3) メモリのみ                                     */
+const KEY="ronbun-phrase-drill-v1";
+let storageMode="memory";
+async function detectStorage(){
+  if(typeof window.storage!=="undefined"&&window.storage&&window.storage.set){
+    storageMode="claude"; return;
+  }
+  try{
+    localStorage.setItem(KEY+"-t","1"); localStorage.removeItem(KEY+"-t");
+    storageMode="local";
+  }catch(e){ storageMode="memory"; }
+}
+async function saveProgress(){
+  const payload=JSON.stringify({
+    states:items.filter(i=>i.state!=="none").map(i=>({id:i.id,s:i.state})),
+    at:new Date().toISOString()
+  });
+  try{
+    if(storageMode==="claude"){ await window.storage.set(KEY,payload); }
+    else if(storageMode==="local"){ localStorage.setItem(KEY,payload); }
+    else{ return; }
+    showSaved();
+  }catch(e){}
+}
+async function loadProgress(){
+  let raw=null;
+  try{
+    if(storageMode==="claude"){
+      const r=await window.storage.get(KEY); raw=r?r.value:null;
+    }else if(storageMode==="local"){
+      raw=localStorage.getItem(KEY);
+    }
+  }catch(e){ raw=null; }
+  if(!raw) return;
+  try{
+    const p=JSON.parse(raw);
+    p.states.forEach(s=>{
+      const it=items.find(i=>i.id===s.id);
+      if(it&&(s.s==="ok"||s.s==="ng")) it.state=s.s;
+    });
+  }catch(e){}
+}
+async function clearProgress(){
+  try{
+    if(storageMode==="claude"){ await window.storage.delete(KEY); }
+    else if(storageMode==="local"){ localStorage.removeItem(KEY); }
+  }catch(e){}
+}
+let savedTimer=null;
+function showSaved(){
+  const el=document.getElementById("savedMsg");
+  const t=new Date();
+  el.textContent="保存済み "+t.getHours()+":"+String(t.getMinutes()).padStart(2,"0");
+  clearTimeout(savedTimer);
+  savedTimer=setTimeout(()=>{el.textContent="";},3000);
+}
+
+const $=s=>document.querySelector(s);
+const list=$("#list"), chipsEl=$("#chips");
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+
+function blanksOf(it){
+  return [...it.raw.matchAll(/【([^】]+)】/g)].map(m=>m[1]);
+}
+function renderSentence(it){
+  return it.raw.split("\n").map(line=>{
+    const inner=line.split(/(【[^】]+】)/).map(p=>{
+      const m=p.match(/^【(.+)】$/);
+      if(!m) return esc(p);
+      const ans=m[1];
+      if(it.revealed) return '<span class="blank open">'+esc(ans)+'</span>';
+      const chars=[...ans];
+      const sq=chars.map((c,i)=>{
+        // 2文字以上の空欄のみヒント表示(1文字助詞は答えそのものになるため)
+        if(i===0&&it.hinted&&chars.length>=2) return '<span class="ch">'+esc(c)+'</span>';
+        return '<span class="sq"></span>';
+      }).join("");
+      return '<span class="blank">'+sq+'</span>';
+    }).join("");
+    return line.startsWith("△")?'<span class="orig">'+inner+'</span>':inner;
+  }).join("<br>");
+}
+
+function visible(){
+  return items.filter(it=>
+    it.mode===curMode&&
+    (curCat==="all"||it.cat===curCat)&&
+    (!reviewOnly||it.state==="ng"));
+}
+
+const MSGS=[[0,"さあ始めよう"],[10,"いいスタート"],[30,"順調に定着中"],[50,"折り返し突破"],[70,"仕上げが見えてきた"],[90,"あと一息"],[100,"全問制覇。お見事"]];
+function progressMsg(pct){
+  let m=MSGS[0][1];
+  for(const[th,t]of MSGS){if(pct>=th)m=t;}
+  return m;
+}
+
+let guideOpen=false;
+const GUIDE_DE=
+  '<details class="guide" id="guideDe">'+
+  '<summary>「で」の使い分けガイド</summary>'+
+  '<div class="gbody">'+
+    '<h4>■ 用法別の言い換え先</h4>'+
+    '<dl>'+
+    '<dt>場所・場面の「で」 → において</dt><dd>「窓口で」→「窓口において」</dd>'+
+    '<dt>原因・手段の「で」 → により・に伴い</dt><dd>「少子高齢化で」→「少子高齢化の進行に伴い」</dd>'+
+    '<dt>道具の「で」 → を活用し・を通じて</dt><dd>「ＳＮＳで把握」→「ＳＮＳを活用して把握」</dd>'+
+    '<dt>その他の格上げ</dt><dd>「中で」→「中にあっては」、「職員で」→「職員による」</dd>'+
+    '<dt>接続の言い換え</dt><dd>「なので」→「このため」、「それで」→「そこで」</dd>'+
+    '</dl>'+
+    '<h4>■ 実戦での目安</h4>'+
+    '<div class="rule">1. 「で」自体は誤りではない。模範答案にも普通に登場する（例:「限られた人員と予算の中で」）。</div>'+
+    '<div class="rule">2. <b>1文に「で」が2回以上</b>出たら片方を言い換える（単調さの解消）。</div>'+
+    '<div class="rule">3. <b>手段・原因の「で」</b>は「により／を活用し」に格上げすると因果が明確になり論文らしくなる。</div>'+
+    '<div class="rule">4. 推敲時に「で」を検索して数える習慣をつける。</div>'+
+  '</div></details>';
+
+function render(){
+  const vis=visible();
+  list.innerHTML="";
+  if(curMode==="de"){
+    list.insertAdjacentHTML("beforeend",GUIDE_DE);
+    const g=document.getElementById("guideDe");
+    if(guideOpen)g.setAttribute("open","");
+    g.addEventListener("toggle",()=>{guideOpen=g.open;});
+  }
+  if(!vis.length){list.insertAdjacentHTML("beforeend",'<div class="empty">該当する問題はありません。</div>');}
+  vis.forEach((it,idx)=>{
+    const c=document.createElement("div");
+    const col=catColor(it.cat);
+    c.className="card"+(it.revealed?" revealed":"")+(it.state!=="none"?" st-"+it.state:"");
+    c.style.setProperty("--cc",col);
+    const res=it.state==="ok"?'<span class="res ok">○</span>':it.state==="ng"?'<span class="res ng">×</span>':"";
+    // 全空欄が1文字ならヒント不可
+    const hintable=blanksOf(it).some(a=>[...a].length>=2);
+    c.innerHTML=
+      '<div class="head"><span class="cat">'+esc(it.cat)+'</span><span class="no">'+(idx+1)+' / '+vis.length+res+'</span></div>'+
+      '<div class="body">'+renderSentence(it)+'</div>'+
+      '<div class="foot">'+
+        '<div class="ops" style="display:'+(it.revealed?'none':'flex')+'">'+
+          '<button data-a="hint" data-id="'+it.id+'"'+((it.hinted||!hintable)?" disabled":"")+'>ヒント（頭文字）</button>'+
+          '<button data-a="open" data-id="'+it.id+'">答えを見る</button>'+
+        '</div>'+
+        '<div class="judge" style="display:'+(it.revealed?'flex':'none')+'">'+
+          '<button class="j-ok" data-a="ok" data-id="'+it.id+'">○ 言えた</button>'+
+          '<button class="j-ng" data-a="ng" data-id="'+it.id+'">× 言えなかった</button>'+
+        '</div>'+
+      '</div>';
+    list.appendChild(c);
+  });
+  const pool=items.filter(i=>i.mode===curMode);
+  const total=pool.length;
+  const ok=pool.filter(i=>i.state==="ok").length;
+  const ng=pool.filter(i=>i.state==="ng").length;
+  $("#stTotal").textContent=total;
+  $("#stOk").textContent=ok;
+  $("#stNg").textContent=ng;
+  $("#stRest").textContent=total-ok-ng;
+  const pct=total?Math.round(ok/total*100):0;
+  $("#pPct").textContent=pct;
+  $("#pBar").style.width=pct+"%";
+  $("#pMsg").textContent=progressMsg(pct);
+}
+
+list.addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b)return;
+  const it=items.find(i=>i.id==b.dataset.id); if(!it)return;
+  const a=b.dataset.a;
+  if(a==="hint")it.hinted=true;
+  if(a==="open")it.revealed=true;
+  if(a==="ok"||a==="ng"){it.state=a;it.revealed=true;saveProgress();}
+  render();
+});
+
+function buildChips(){
+  const all=["all",...catsOf(curMode)];
+  chipsEl.innerHTML=all.map(c=>{
+    const col=c==="all"?"#1b2440":catColor(c);
+    return '<button class="chip'+(c===curCat?" on":"")+'" style="--cc:'+col+'" data-c="'+esc(c)+'">'+(c==="all"?"すべて":esc(c))+'</button>';
+  }).join("");
+}
+chipsEl.addEventListener("click",e=>{
+  const b=e.target.closest(".chip"); if(!b)return;
+  curCat=b.dataset.c; buildChips(); render();
+  window.scrollTo({top:0});
+});
+document.getElementById("modes").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b)return;
+  curMode=b.dataset.m; curCat="all";
+  document.querySelectorAll("#modes button").forEach(x=>x.classList.toggle("on",x.dataset.m===curMode));
+  buildChips(); render();
+  window.scrollTo({top:0});
+});
+
+$("#btnShuffle").onclick=()=>{
+  for(let i=items.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [items[i],items[j]]=[items[j],items[i]];
+  }
+  items.forEach(i=>{i.hinted=false;i.revealed=false;});
+  render(); window.scrollTo({top:0});
+};
+$("#btnReview").onclick=function(){
+  reviewOnly=!reviewOnly;
+  this.classList.toggle("on",reviewOnly);
+  render(); window.scrollTo({top:0});
+};
+$("#btnReset").onclick=()=>{
+  if(!confirm("採点結果をすべて消去します（全モード）。よろしいですか?"))return;
+  items.forEach(i=>{i.state="none";i.hinted=false;i.revealed=false;});
+  reviewOnly=false; $("#btnReview").classList.remove("on");
+  clearProgress(); render();
+};
+
+(async()=>{
+  await detectStorage();
+  await loadProgress();
+  const note=$("#envNote");
+  if(storageMode==="memory"){
+    note.textContent="※ この環境では保存機能が使えないため、進捗はページを閉じるとリセットされます。";
+  }else{
+    note.textContent="○×の採点結果は自動保存され、次回開いたときに復元されます。";
+  }
+  document.documentElement.style.setProperty("--hh",$("#hd").offsetHeight+"px");
+  buildChips(); render();
+})();
+</script>
+</body>
+</html>
